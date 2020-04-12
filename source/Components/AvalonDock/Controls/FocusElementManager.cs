@@ -21,7 +21,7 @@ using System.Windows.Threading;
 
 namespace AvalonDock.Controls
 {
-	internal static class FocusElementManager
+	public static class FocusElementManager
 	{
 		#region fields
 
@@ -156,8 +156,22 @@ namespace AvalonDock.Controls
 		private static void Current_Exit(object sender, ExitEventArgs e)
 		{
 			if (Application.Current != null)
+			{
 				Application.Current.Exit -= new ExitEventHandler(Current_Exit);
+				UnhookHack();
+			}
 
+			if (_windowHandler != null)
+			{
+				_windowHandler.FocusChanged -= new EventHandler<FocusChangeEventArgs>(WindowFocusChanging);
+				//_windowHandler.Activate -= new EventHandler<WindowActivateEventArgs>(WindowActivating);
+				_windowHandler.Detach();
+				_windowHandler = null;
+			}
+		}
+
+		public static void UnhookHack()
+		{
 			if (_windowHandler != null)
 			{
 				_windowHandler.FocusChanged -= new EventHandler<FocusChangeEventArgs>(WindowFocusChanging);
